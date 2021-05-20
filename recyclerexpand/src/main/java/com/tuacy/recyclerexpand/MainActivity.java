@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 	private void initView() {
 		mRecyclerView = findViewById(R.id.recycler_order_list);
 		mRecyclerView.setLayoutManager(mLayoutManager = new LinearLayoutManager(mContext));
-		mRecyclerView.addItemDecoration(new PinnedHeaderItemDecoration());
+		mRecyclerView.addItemDecoration(new PinnedHeaderItemDecoration(this));
 	}
 
 	private void initEvent() {

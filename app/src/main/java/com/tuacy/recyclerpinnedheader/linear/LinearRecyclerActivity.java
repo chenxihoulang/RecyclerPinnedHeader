@@ -2,6 +2,7 @@ package com.tuacy.recyclerpinnedheader.linear;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -55,7 +56,8 @@ public class LinearRecyclerActivity extends AppCompatActivity {
 	private void initData() {
 		LinearRecyclerAdapter adapter = new LinearRecyclerAdapter(obtainData());
 		mRecyclerView.setAdapter(adapter);
-		mRecyclerView.addItemDecoration(new PinnedHeaderItemDecoration());
+		mRecyclerView.addItemDecoration(new PinnedHeaderItemDecoration(this,10F, Color.BLUE));
+//		mRecyclerView.addItemDecoration(new RecycleViewDivider(this));
 	}
 
 	private List<String> obtainData() {

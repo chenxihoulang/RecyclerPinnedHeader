@@ -65,7 +65,7 @@ public class GridRecyclerActivity extends AppCompatActivity {
 	private void initData() {
 		GridRecyclerAdapter adapter = new GridRecyclerAdapter(obtainData());
 		mRecyclerView.setAdapter(adapter);
-		mRecyclerView.addItemDecoration(new PinnedHeaderItemDecoration());
+		mRecyclerView.addItemDecoration(new PinnedHeaderItemDecoration(this));
 	}
 
 	private List<String> obtainData() {

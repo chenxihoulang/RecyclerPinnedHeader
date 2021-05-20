@@ -14,4 +14,7 @@
 
     <color name="text_gray">#000000</color>
     <color name="activity_color">#eeeeee</color>
+
+    <color name="transparent">#00ffffff</color>
+    <color name="window_background">#eeeeee</color>
 </resources>

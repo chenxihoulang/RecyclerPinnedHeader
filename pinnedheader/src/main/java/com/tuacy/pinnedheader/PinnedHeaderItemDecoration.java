@@ -1,8 +1,11 @@
 package com.tuacy.pinnedheader;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -11,8 +14,43 @@ import android.view.View;
  */
 public class PinnedHeaderItemDecoration extends RecyclerView.ItemDecoration implements IPinnedHeaderDecoration {
 
+    /**
+     * 分割线高度
+     */
+    private int mDividerSize;
+    /**
+     * 分割线画笔
+     */
+    private Paint mPaint;
+
     private Rect mPinnedHeaderRect = null;
     private int mPinnedHeaderPosition = -1;
+
+    public PinnedHeaderItemDecoration(Context context) {
+        this(context, 0.5F);
+    }
+
+    /**
+     * 构造一个水平方向的透明颜色分割线
+     *
+     * @param dividerSize 分割线尺寸,单位dp
+     */
+    public PinnedHeaderItemDecoration(Context context, float dividerSize) {
+        this(context, dividerSize, Color.TRANSPARENT);
+    }
+
+    /**
+     * 使用颜色自定义分割线
+     *
+     * @param dividerSize  分割线尺寸,单位dp
+     * @param dividerColor 分割线颜色
+     */
+    public PinnedHeaderItemDecoration(Context context, float dividerSize, @ColorInt int dividerColor) {
+        mDividerSize = dip2px(context, dividerSize);
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setColor(dividerColor);
+        mPaint.setStyle(Paint.Style.FILL);
+    }
 
     /**
      * 把要固定的View绘制在上层
@@ -88,6 +126,50 @@ public class PinnedHeaderItemDecoration extends RecyclerView.ItemDecoration impl
      */
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+        if (parent.getAdapter() instanceof PinnedHeaderAdapter) {
+            int firstAdapterPosition = parent.getChildAdapterPosition(view);
+            PinnedHeaderAdapter adapter = (PinnedHeaderAdapter) parent.getAdapter();
+
+            //默认分割线是绘制在item的下方,当前要绘制的item是否是PinView
+            boolean currentIsPinView = adapter.isPinnedPosition(firstAdapterPosition);
+            //当前item的下方是否是PinView
+            boolean nextIsPinView = firstAdapterPosition < adapter.getItemCount()
+                    && adapter.isPinnedPosition(firstAdapterPosition + 1);
+
+            if (currentIsPinView || nextIsPinView) {
+                outRect.set(0, 0, 0, 0);
+                return;
+            }
+        }
+
+        outRect.set(0, 0, 0, mDividerSize);
+    }
+
+    /**
+     * 绘制分割线
+     */
+    @Override
+    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        super.onDraw(c, parent, state);
+        drawHorizontal(c, parent);
+    }
+
+    /**
+     * 绘制横向分割线
+     */
+    private void drawHorizontal(Canvas canvas, RecyclerView parent) {
+        final int left = parent.getPaddingLeft();
+        final int right = parent.getMeasuredWidth() - parent.getPaddingRight();
+        final int childSize = parent.getChildCount();
+        for (int i = 0; i < childSize - 1; i++) {
+            final View child = parent.getChildAt(i);
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) child.getLayoutParams();
+            final int top = child.getBottom() + layoutParams.bottomMargin;
+            final int bottom = top + mDividerSize;
+            if (mPaint != null) {
+                canvas.drawRect(left, top, right, bottom, mPaint);
+            }
+        }
     }
 
     /**
@@ -137,5 +219,13 @@ public class PinnedHeaderItemDecoration extends RecyclerView.ItemDecoration impl
     @Override
     public int getPinnedHeaderPosition() {
         return mPinnedHeaderPosition;
+    }
+
+    /**
+     * dp2px
+     */
+    private static int dip2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 }
