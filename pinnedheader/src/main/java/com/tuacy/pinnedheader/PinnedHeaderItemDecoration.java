@@ -21,63 +21,66 @@ public class PinnedHeaderItemDecoration extends RecyclerView.ItemDecoration impl
     public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
         super.onDrawOver(c, parent, state);
         //确保是PinnedHeaderAdapter的adapter,确保有View
-        if (parent.getAdapter() instanceof PinnedHeaderAdapter && parent.getChildCount() > 0) {
-            PinnedHeaderAdapter adapter = (PinnedHeaderAdapter) parent.getAdapter();
-            //找到列表中的第一个itemView,这个itemView有可能是PinView,有可能是普通itemView
-            View firstView = parent.getChildAt(0);
-            int firstAdapterPosition = parent.getChildAdapterPosition(firstView);
-            //找到第一个PinView在Adapter中的索引位置
-            int pinnedHeaderPosition = getPinnedHeaderViewPosition(firstAdapterPosition, adapter);
-            mPinnedHeaderPosition = pinnedHeaderPosition;
-
-            if (pinnedHeaderPosition != -1) {
-                //创建PinView
-                RecyclerView.ViewHolder pinnedHeaderViewHolder = adapter.onCreateViewHolder(parent,
-                        adapter.getItemViewType(pinnedHeaderPosition));
-
-                //绑定PinView
-                adapter.onBindViewHolder(pinnedHeaderViewHolder, pinnedHeaderPosition);
-                //获取要固定的view
-                View pinnedHeaderView = pinnedHeaderViewHolder.itemView;
-
-                //1.将PinView测量后layout在顶部
-                ensurePinnedHeaderViewLayout(pinnedHeaderView, parent);
-                //布局完成后,获取到PinView的高度,用于计算吸顶PinView的偏移量
-                int pinViewHeight = pinnedHeaderView.getHeight();
-
-                //2.根据下一个PinView计算到顶部的PinView的偏移量
-                int sectionPinOffset = 0;
-                for (int index = 0; index < parent.getChildCount(); index++) {
-                    if (adapter.isPinnedPosition(parent.getChildAdapterPosition(parent.getChildAt(index)))) {
-                        View sectionView = parent.getChildAt(index);
-                        int sectionTop = sectionView.getTop();
-                        if (sectionTop < pinViewHeight && sectionTop > 0) {
-                            //这个值肯定是<=0的
-                            sectionPinOffset = sectionTop - pinViewHeight;
-                        }
-                        break;
-                    }
-                }
-
-                RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) pinnedHeaderView.getLayoutParams();
-                int saveCount = c.save();
-                //sectionPinOffset<=0,所以canvas向上移动
-                c.translate(layoutParams.leftMargin, sectionPinOffset);
-                //裁剪掉pinnedHeaderView与当前的PinView上边重合的部分
-                c.clipRect(0, 0, parent.getWidth(), pinnedHeaderView.getMeasuredHeight());
-                //3.在顶部再绘制一次顶部PinView,覆盖在最列表中最上面的PinView上方,这个PinView是有偏移量的
-                pinnedHeaderView.draw(c);
-                c.restoreToCount(saveCount);
-
-                if (mPinnedHeaderRect == null) {
-                    mPinnedHeaderRect = new Rect();
-                }
-                mPinnedHeaderRect.set(0, 0, parent.getWidth(), pinnedHeaderView.getMeasuredHeight() + sectionPinOffset);
-            } else {
-                mPinnedHeaderRect = null;
-            }
-
+        if (!(parent.getAdapter() instanceof PinnedHeaderAdapter)
+                || parent.getChildCount() <= 0) {
+            return;
         }
+
+        PinnedHeaderAdapter adapter = (PinnedHeaderAdapter) parent.getAdapter();
+        //找到列表中的第一个itemView,这个itemView有可能是PinView,有可能是普通itemView
+        View firstView = parent.getChildAt(0);
+        int firstAdapterPosition = parent.getChildAdapterPosition(firstView);
+        //找到第一个PinView在Adapter中的索引位置
+        int pinnedHeaderPosition = getPinnedHeaderViewPosition(firstAdapterPosition, adapter);
+        mPinnedHeaderPosition = pinnedHeaderPosition;
+
+        if (pinnedHeaderPosition == -1) {
+            mPinnedHeaderRect = null;
+            return;
+        }
+
+        //创建PinView
+        RecyclerView.ViewHolder pinnedHeaderViewHolder = adapter.onCreateViewHolder(parent,
+                adapter.getItemViewType(pinnedHeaderPosition));
+
+        //绑定PinView
+        adapter.onBindViewHolder(pinnedHeaderViewHolder, pinnedHeaderPosition);
+        //获取要固定的view
+        View pinnedHeaderView = pinnedHeaderViewHolder.itemView;
+
+        //1.将PinView测量后layout在顶部
+        ensurePinnedHeaderViewLayout(pinnedHeaderView, parent);
+        //布局完成后,获取到PinView的高度,用于计算吸顶PinView的偏移量
+        int pinViewHeight = pinnedHeaderView.getHeight();
+
+        //2.根据下一个PinView计算到顶部的PinView的偏移量
+        int sectionPinOffset = 0;
+        for (int index = 0; index < parent.getChildCount(); index++) {
+            if (adapter.isPinnedPosition(parent.getChildAdapterPosition(parent.getChildAt(index)))) {
+                View sectionView = parent.getChildAt(index);
+                int sectionTop = sectionView.getTop();
+                if (sectionTop < pinViewHeight && sectionTop > 0) {
+                    //这个值肯定是<=0的
+                    sectionPinOffset = sectionTop - pinViewHeight;
+                }
+                break;
+            }
+        }
+
+        RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) pinnedHeaderView.getLayoutParams();
+        int saveCount = c.save();
+        //sectionPinOffset<=0,所以canvas向上移动
+        c.translate(layoutParams.leftMargin, sectionPinOffset);
+        //裁剪掉pinnedHeaderView与当前的PinView上边重合的部分
+        c.clipRect(0, 0, parent.getWidth(), pinnedHeaderView.getMeasuredHeight());
+        //3.在顶部再绘制一次顶部PinView,覆盖在最列表中最上面的PinView上方,这个PinView是有偏移量的
+        pinnedHeaderView.draw(c);
+        c.restoreToCount(saveCount);
+
+        if (mPinnedHeaderRect == null) {
+            mPinnedHeaderRect = new Rect();
+        }
+        mPinnedHeaderRect.set(0, 0, parent.getWidth(), pinnedHeaderView.getMeasuredHeight() + sectionPinOffset);
     }
 
     /**
