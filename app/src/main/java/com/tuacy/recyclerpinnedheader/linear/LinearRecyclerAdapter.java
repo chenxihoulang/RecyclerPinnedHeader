@@ -2,6 +2,7 @@ package com.tuacy.recyclerpinnedheader.linear;
 
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,81 +15,85 @@ import java.util.List;
 
 public class LinearRecyclerAdapter extends PinnedHeaderAdapter<RecyclerView.ViewHolder> {
 
-	private static final int VIEW_TYPE_ITEM_TIME    = 0;
-	private static final int VIEW_TYPE_ITEM_CONTENT = 1;
+    private static final int VIEW_TYPE_ITEM_TIME = 0;
+    private static final int VIEW_TYPE_ITEM_CONTENT = 1;
 
-	private List<String> mDataList;
+    private List<String> mDataList;
 
-	public LinearRecyclerAdapter() {
-		this(null);
-	}
+    public LinearRecyclerAdapter() {
+        this(null);
+    }
 
-	public LinearRecyclerAdapter(List<String> dataList) {
-		mDataList = dataList;
-	}
+    public LinearRecyclerAdapter(List<String> dataList) {
+        mDataList = dataList;
 
-	public void setData(List<String> dataList) {
-		mDataList = dataList;
-		notifyDataSetChanged();
-	}
+        Log.e("chwww", "datacount:" + mDataList.size());
+    }
 
-	@Override
-	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		if (viewType == VIEW_TYPE_ITEM_TIME) {
-			return new TitleHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_linear_title, parent, false));
-		} else {
-			return new ContentHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_linear_content, parent, false));
-		}
-	}
+    public void setData(List<String> dataList) {
+        mDataList = dataList;
+        notifyDataSetChanged();
+    }
 
-	@Override
-	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-		if (getItemViewType(position) == VIEW_TYPE_ITEM_TIME) {
-			TitleHolder titleHolder = (TitleHolder) holder;
-			titleHolder.mTextTitle.setText(mDataList.get(position));
-		} else {
-			ContentHolder contentHolder = (ContentHolder) holder;
-			contentHolder.mTextTitle.setText(mDataList.get(position));
-		}
-	}
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_ITEM_TIME) {
+            return new TitleHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_linear_title, parent, false));
+        } else {
+            return new ContentHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_linear_content, parent, false));
+        }
+    }
 
-	@Override
-	public int getItemCount() {
-		return mDataList == null ? 0 : mDataList.size();
-	}
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (getItemViewType(position) == VIEW_TYPE_ITEM_TIME) {
+            TitleHolder titleHolder = (TitleHolder) holder;
+            titleHolder.mTextTitle.setText(mDataList.get(position));
+        } else {
+            ContentHolder contentHolder = (ContentHolder) holder;
+            contentHolder.mTextTitle.setText(mDataList.get(position));
+        }
+    }
 
-	@Override
-	public int getItemViewType(int position) {
-		if (position % 5 == 0) {
-			return VIEW_TYPE_ITEM_TIME;
-		} else {
-			return VIEW_TYPE_ITEM_CONTENT;
-		}
-	}
+    @Override
+    public int getItemCount() {
+        return mDataList == null ? 0 : mDataList.size();
+    }
 
-	@Override
-	public boolean isPinnedPosition(int position) {
-		return getItemViewType(position) == VIEW_TYPE_ITEM_TIME;
-	}
+    @Override
+    public int getItemViewType(int position) {
+        String s = mDataList.get(position);
+        Log.e("chwww", "pos:" + position + ",s:" + s);
+        if (position % 5 == 0) {
+            return VIEW_TYPE_ITEM_TIME;
+        } else {
+            return VIEW_TYPE_ITEM_CONTENT;
+        }
+    }
 
-	static class ContentHolder extends RecyclerView.ViewHolder {
+    @Override
+    public boolean isPinnedPosition(int position) {
+        return getItemViewType(position) == VIEW_TYPE_ITEM_TIME;
+    }
 
-		TextView mTextTitle;
+    static class ContentHolder extends RecyclerView.ViewHolder {
 
-		ContentHolder(View itemView) {
-			super(itemView);
-			mTextTitle = itemView.findViewById(R.id.text_adapter_content_name);
-		}
-	}
+        TextView mTextTitle;
 
-	static class TitleHolder extends RecyclerView.ViewHolder {
+        ContentHolder(View itemView) {
+            super(itemView);
+            mTextTitle = itemView.findViewById(R.id.text_adapter_content_name);
+        }
+    }
 
-		TextView mTextTitle;
+    static class TitleHolder extends RecyclerView.ViewHolder {
 
-		TitleHolder(View itemView) {
-			super(itemView);
-			mTextTitle = itemView.findViewById(R.id.text_adapter_title_name);
-		}
-	}
+        TextView mTextTitle;
+
+        TitleHolder(View itemView) {
+            super(itemView);
+            mTextTitle = itemView.findViewById(R.id.text_adapter_title_name);
+        }
+    }
 
 }

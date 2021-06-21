@@ -133,7 +133,7 @@ public class PinnedHeaderItemDecoration extends RecyclerView.ItemDecoration impl
             //默认分割线是绘制在item的下方,当前要绘制的item是否是PinView
             boolean currentIsPinView = adapter.isPinnedPosition(firstAdapterPosition);
             //当前item的下方是否是PinView
-            boolean nextIsPinView = firstAdapterPosition < adapter.getItemCount()
+            boolean nextIsPinView = firstAdapterPosition < adapter.getItemCount() - 1
                     && adapter.isPinnedPosition(firstAdapterPosition + 1);
 
             if (currentIsPinView || nextIsPinView) {
